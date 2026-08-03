@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+COMPOSE_FILE="/home/flostone/devenv/docker-compose.yml"
+
+# Function to display usage instructions
+usage() {
+    echo "Usage: $0 {up|down}"
+    echo "  up    - Runs 'docker compose up -d' (starts containers in detached mode)"
+    echo "  down  - Runs 'docker compose down' (stops and removes containers)"
+    exit 1
+}
+
+# Check if an argument was provided
+if [ -z "$1" ]; then
+    echo "Error: Missing argument."
+    usage
+fi
+
+# Process the command-line argument
+case "$1" in
+    up)
+        echo "Starting Development Environment..."
+        docker compose -f "$COMPOSE_FILE" up -d
+        ;;
+    down)
+        echo "Stopping Development Environment..."
+        docker compose -f "$COMPOSE_FILE" down
+        ;;
+    *)
+        echo "Error: Invalid argument '$1'."
+        usage
+        ;;
+esac
