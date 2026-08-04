@@ -8,7 +8,7 @@ services:
       - "1025:1025" # SMTP port (mapped to host if needed)
       - "8025:8025" # Web UI port
     networks:
-      - mail
+      - devenv
     restart: "no"
 
   meilisearch:
@@ -21,9 +21,9 @@ services:
       - MEILI_NO_ANALYTICS=true
     volumes:
       - meili_data:/meili_data
-    restart: unless-stopped
+    restart: "no"
     networks:
-      - database
+      - devenv
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:7700/health"]
       interval: 10s     # How often to perform the check
@@ -45,7 +45,7 @@ services:
     command: server /data --console-address ":9001"
     restart: "no"
     networks:
-      - storage
+      - devenv
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 10s
@@ -60,8 +60,9 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+      - mongo_config:/data/configdb
     networks:
-      - database
+      - devenv
     restart: "no"
 #    healthcheck:
 #      test: ["CMD-SHELL", "mongosh --eval 'db.ping()' || exit 1"]
@@ -82,7 +83,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
-      - database
+      - devenv
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root || exit 1"]
       interval: 10s
@@ -103,7 +104,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql
     networks:
-      - database
+      - devenv
     healthcheck:
       test: ["CMD", "pg_isready"]
       interval: 10s
@@ -123,7 +124,7 @@ services:
       - typesense_data:/data
     restart: "no"
     networks:
-      - database
+      - devenv
 #    healthcheck:
 #      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8108/health || exit 1"]
 #      interval: 10s     # How often to check
@@ -148,7 +149,7 @@ services:
       timeout: 3s
       retries: 5
     networks:
-      - database
+      - devenv
 
   nginx:
     image: nginx:alpine
@@ -162,9 +163,7 @@ services:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./ssl:/etc/nginx/ssl:ro
     networks:
-      - web
-      - mail
-      - storage
+      - devenv
 #    healthcheck:
 #      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost/ || exit 1"]
 #      interval: 10s     # How often to run the check
@@ -181,10 +180,7 @@ services:
       - /var/www/html:/var/www/html
     restart: "no"
     networks:
-      - web
-      - database
-      - storage
-      - mail
+      - devenv
 #    healthcheck:
 #      test: ["CMD-SHELL", "php-fpm-healthcheck || exit 1"]
 #      interval: 10s
@@ -200,10 +196,7 @@ services:
       - /var/www/html:/var/www/html
     restart: "no"
     networks:
-      - web
-      - database
-      - storage
-      - mail
+      - devenv
 #    healthcheck:
 #      test: ["CMD-SHELL", "php-fpm-healthcheck || exit 1"]
 #      interval: 10s
@@ -212,15 +205,13 @@ services:
 
 
 networks:
-  web:
-  mail:
-  database:
-  storage:
+  devenv:
 
 volumes:
   meili_data:
   minio_data:
   mongo_data:
+  mongo_config:
   mysql_data:
   pgdata:
   typesense_data:

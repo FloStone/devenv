@@ -29,6 +29,13 @@ case "$1" in
         echo "Stopping Development Environment..."
         docker compose -f "$COMPOSE_FILE" down
         ;;
+    status)
+	if [ -n "$(docker compose -f $COMPOSE_FILE ps -q --status running)" ]; then
+	  echo -e "\033[0;32mDevelopment environment is running.\033[0m"
+	else
+	  echo -e "\033[0;31mDevelopment environment is down.\033[0m"
+	fi
+	;;
     *)
         echo "Error: Invalid argument '$1'."
         usage
