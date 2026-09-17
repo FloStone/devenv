@@ -27,28 +27,27 @@ services:
       retries: 5        # Mark as unhealthy after 5 failed checks
       start_period: 10s # Grace period during initial engine launch
 
-  minio:
-    image: minio/minio:latest
-    container_name: minio
+  rustfs:
+    image: rustfs/rustfs:latest
+    container_name: rustfs
     ports:
-      - "9000:9000" # API port
-      - "9001:9001" # Web Console port
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # Web Console
     environment:
-      MINIO_ROOT_USER: root
-      MINIO_ROOT_PASSWORD: minioroot
-    volumes:
-      - minio_data:/data
-    command: server /data --console-address ":9001"
+      RUSTFS_ROOT_USER: "root"
+      RUSTFS_ROOT_PASSWORD: "root"
     restart: "no"
+    volumes:
+      - rustfs_data:/data
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/health || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 5
-      start_period: 10s
+      retries: 3
+      start_period: 5s
 
   mongodb:
-    image: mongo:8
+    image: mongo:8.0.4
     container_name: mongodb-8
     ports:
       - "27017:27017"
@@ -178,7 +177,7 @@ services:
       - php85
       - php84
       - keycloak
-      - minio
+      - rustfs
       - mailpit
     networks:
       default:
@@ -224,10 +223,10 @@ services:
 
 volumes:
   meili_data:
-  minio_data:
   mongo_data:
   mongo_config:
   mysql_data:
   pgdata:
   typesense_data:
   valkey_data:
+  rustfs_data:

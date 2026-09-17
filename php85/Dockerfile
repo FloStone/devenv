@@ -27,3 +27,5 @@ RUN install-php-extensions \
     && rm /usr/local/bin/install-php-extensions
 
 RUN mkdir -p /.composer && chmod -R 777 /.composer
+
+RUN echo "memory_limit = 2G" > /usr/local/etc/php/conf.d/memory-limit.ini
