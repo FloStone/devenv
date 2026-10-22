@@ -123,8 +123,8 @@ services:
     restart: "no"
     ports:
       - "6379:6379"
-    volumes:
-      - valkey_data:/data
+    #volumes:
+    #  - valkey_data:/data
     # We run the server and pass configuration flags inline 
     # This enables data persistence (AOF) and sets the access password
     command: valkey-server --appendonly yes --protected-mode no
